@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# private database seeds & book content
+/supabase/setup_and_seed_book.sql
+/supabase/seed*.sql
