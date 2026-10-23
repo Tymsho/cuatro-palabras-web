@@ -80,9 +80,9 @@ export default function TomoUnoPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#FAF8F5] flex flex-col items-center justify-center p-6 text-stone-500 font-sans text-xs gap-3">
-          <div className="w-8 h-8 rounded-full border-2 border-stone-300 border-t-stone-800 animate-spin" />
-          <p className="font-serif italic text-stone-600">Abriendo Cuatro Palabras...</p>
+        <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center p-6 text-[var(--text-muted)] font-sans text-xs gap-3 transition-colors duration-200">
+          <div className="w-8 h-8 rounded-full border-2 border-[var(--border-color)] border-t-[var(--text-primary)] animate-spin" />
+          <p className="font-serif italic text-[var(--text-secondary)]">Abriendo Cuatro Palabras...</p>
         </div>
       }
     >

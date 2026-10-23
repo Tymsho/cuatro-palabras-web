@@ -12,11 +12,11 @@ import {
   LogOut,
   LogIn,
   Sparkles,
-  Type,
-  ChevronLeft,
+  ChevronDown,
   ChevronRight,
 } from 'lucide-react'
 import type { Book, Chapter } from '@/data/book-tomo-1'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 interface BookReaderProps {
   book: Book
@@ -25,6 +25,22 @@ interface BookReaderProps {
   hasFullAccess: boolean
   onSignOut?: () => Promise<void>
 }
+
+const ROMAN_NUMERALS = [
+  'I',
+  'II',
+  'III',
+  'IV',
+  'V',
+  'VI',
+  'VII',
+  'VIII',
+  'IX',
+  'X',
+  'XI',
+  'XII',
+  'XIII',
+]
 
 export function BookReader({
   book,
@@ -36,6 +52,10 @@ export function BookReader({
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0)
   const [isTocOpen, setIsTocOpen] = useState(false)
   const [fontSize, setFontSize] = useState<'normal' | 'large' | 'larger'>('normal')
+
+  // Estado del acordeón por Tomos en el Índice
+  const [isTomo1Open, setIsTomo1Open] = useState(true)
+  const [isTomo2Open, setIsTomo2Open] = useState(false)
 
   // Cargar último capítulo leído guardado localmente si existe
   useEffect(() => {
@@ -106,24 +126,24 @@ export function BookReader({
   const progressPercent = Math.round(((currentChapterIndex + 1) / availableChapters.length) * 100)
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 font-sans selection:bg-stone-300 flex flex-col justify-between">
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans selection:bg-[var(--bg-muted)] flex flex-col justify-between transition-colors duration-200">
       {/* Barra de progreso de lectura ultra-fina en el borde superior */}
-      <div className="fixed top-0 left-0 right-0 h-[2px] bg-stone-200/60 z-40">
+      <div className="fixed top-0 left-0 right-0 h-[2px] bg-[var(--border-color)]/60 z-40">
         <div
-          className="h-full bg-stone-800 transition-all duration-300"
+          className="h-full bg-[var(--text-primary)] transition-all duration-300"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
       {/* Barra de cabecera flotante adaptable a móviles */}
-      <header className="sticky top-0 z-30 border-b border-stone-200/80 bg-[#FAF8F5]/95 backdrop-blur-md">
+      <header className="sticky top-0 z-30 border-b border-[var(--border-color)] bg-[var(--bg-primary)]/90 backdrop-blur-md transition-colors duration-200">
         <div className="max-w-4xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2">
           {/* Botón Índice e información de capítulo */}
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setIsTocOpen(true)}
-              className="flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold px-2.5 sm:px-3 py-1.5 rounded-md border border-stone-300 hover:border-stone-800 bg-[#FFFDF9] transition cursor-pointer text-stone-700 hover:text-stone-950 shrink-0"
+              className="flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold px-2.5 sm:px-3 py-1.5 rounded-md border border-[var(--border-color)] hover:border-[var(--text-primary)] bg-[var(--bg-surface)] hover:bg-[var(--bg-muted)] transition cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)] shrink-0"
               title="Abrir índice de contenidos"
             >
               <List className="w-4 h-4" />
@@ -131,31 +151,31 @@ export function BookReader({
             </button>
 
             <div className="flex items-center gap-1.5 min-w-0 text-xs sm:text-sm">
-              <span className="font-serif font-medium text-stone-900 hidden md:inline shrink-0">
+              <span className="font-serif font-medium text-[var(--text-primary)] hidden md:inline shrink-0">
                 {book.title}
               </span>
-              <span className="text-stone-300 hidden md:inline">·</span>
-              <span className="font-sans text-stone-600 truncate text-[11px] sm:text-xs">
+              <span className="text-[var(--border-color)] hidden md:inline">·</span>
+              <span className="font-sans text-[var(--text-secondary)] truncate text-[11px] sm:text-xs">
                 {currentChapter?.number ? `${currentChapter.number}: ` : ''}
                 {currentChapter?.title}
               </span>
             </div>
           </div>
 
-          {/* Controles derechos: Tipografía, Acceso, Usuario */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Controles derechos: Selector de tema, Tipografía, Acceso, Usuario */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Indicador de acceso (versión compacta en celular) */}
             {hasFullAccess ? (
               <span
-                className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-sans font-medium px-2 py-0.5 sm:py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/70"
+                className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-sans font-medium px-2 py-0.5 sm:py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/25"
                 title="Tienes acceso a la versión completa del libro"
               >
-                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-600" />
+                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-600 dark:text-emerald-400" />
                 <span className="hidden sm:inline">Completo</span>
               </span>
             ) : (
               <span
-                className="inline-flex items-center text-[10px] sm:text-[11px] font-sans font-medium px-2 py-0.5 sm:py-1 rounded-full bg-stone-100 text-stone-600 border border-stone-200"
+                className="inline-flex items-center text-[10px] sm:text-[11px] font-sans font-medium px-2 py-0.5 sm:py-1 rounded-full bg-[var(--bg-muted)] text-[var(--text-secondary)] border border-[var(--border-color)]"
                 title="Muestra de cortesía hasta el final del Capítulo 1"
               >
                 <span>Muestra</span>
@@ -163,7 +183,7 @@ export function BookReader({
             )}
 
             {/* Ajuste de tamaño de fuente (Accesible en celulares y escritorio) */}
-            <div className="flex items-center border border-stone-200 rounded-md bg-[#FFFDF9] overflow-hidden text-[11px] sm:text-xs">
+            <div className="flex items-center border border-[var(--border-color)] rounded-md bg-[var(--bg-surface)] overflow-hidden text-[11px] sm:text-xs">
               <button
                 type="button"
                 onClick={() =>
@@ -172,12 +192,12 @@ export function BookReader({
                   )
                 }
                 disabled={fontSize === 'normal'}
-                className="px-2 py-1 sm:py-1.5 hover:bg-stone-100 disabled:opacity-30 transition cursor-pointer text-stone-600 font-medium"
+                className="px-2 py-1 sm:py-1.5 hover:bg-[var(--bg-muted)] disabled:opacity-30 transition cursor-pointer text-[var(--text-secondary)] font-medium"
                 title="Reducir tamaño de letra"
               >
                 A-
               </button>
-              <div className="w-px h-3.5 bg-stone-200" />
+              <div className="w-px h-3.5 bg-[var(--border-color)]" />
               <button
                 type="button"
                 onClick={() =>
@@ -186,18 +206,21 @@ export function BookReader({
                   )
                 }
                 disabled={fontSize === 'larger'}
-                className="px-2 py-1 sm:py-1.5 hover:bg-stone-100 disabled:opacity-30 transition cursor-pointer text-stone-900 font-semibold"
+                className="px-2 py-1 sm:py-1.5 hover:bg-[var(--bg-muted)] disabled:opacity-30 transition cursor-pointer text-[var(--text-primary)] font-semibold"
                 title="Aumentar tamaño de letra"
               >
                 A+
               </button>
             </div>
 
+            {/* Botón de alternancia de tema (Claro Beige / Oscuro Grafito) */}
+            <ThemeToggle />
+
             {/* Estado del usuario */}
             {user ? (
               <div className="flex items-center gap-1.5">
                 <span
-                  className="text-xs text-stone-500 hidden lg:inline max-w-[120px] truncate"
+                  className="text-xs text-[var(--text-muted)] hidden lg:inline max-w-[120px] truncate"
                   title={user.email}
                 >
                   {user.email}
@@ -206,7 +229,7 @@ export function BookReader({
                   <form action={onSignOut}>
                     <button
                       type="submit"
-                      className="p-1.5 text-stone-500 hover:text-stone-900 rounded-md hover:bg-stone-100 transition cursor-pointer"
+                      className="p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-md hover:bg-[var(--bg-muted)] transition cursor-pointer"
                       title="Cerrar sesión"
                     >
                       <LogOut className="w-4 h-4" />
@@ -217,7 +240,7 @@ export function BookReader({
             ) : (
               <Link
                 href="/login?redirectTo=/leer/tomo-1"
-                className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-stone-900 text-[#FAF8F5] hover:bg-stone-800 transition shadow-xs"
+                className="inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-md bg-[var(--text-primary)] text-[var(--bg-primary)] hover:opacity-90 transition shadow-xs"
               >
                 <LogIn className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 <span className="hidden sm:inline">Entrar</span>
@@ -233,40 +256,42 @@ export function BookReader({
           {/* Cabecera del capítulo */}
           <header className="text-center mb-8 sm:mb-16 space-y-2.5 sm:space-y-3">
             {currentChapter.number && (
-              <p className="text-[11px] sm:text-xs font-sans uppercase tracking-[0.25em] sm:tracking-[0.3em] text-stone-500 font-semibold">
+              <p className="text-[11px] sm:text-xs font-sans uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[var(--text-muted)] font-semibold">
                 {currentChapter.number}
               </p>
             )}
 
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-tight text-stone-900 leading-tight">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-normal tracking-tight text-[var(--text-primary)] leading-tight">
               {currentChapter.title}
             </h1>
 
             {/* Cuatro Palabras del capítulo con flex-wrap responsivo */}
             {currentChapter.fourWords && (
-              <div className="pt-2 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-sans tracking-wider text-stone-500 uppercase">
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs font-sans tracking-wider text-[var(--text-muted)] uppercase">
                 {currentChapter.fourWords.map((word, i) => (
                   <React.Fragment key={word}>
-                    <span className="font-medium text-stone-700">{word}</span>
+                    <span className="font-medium text-[var(--text-secondary)]">{word}</span>
                     {i < currentChapter.fourWords!.length - 1 && (
-                      <span className="text-stone-300">·</span>
+                      <span className="text-[var(--border-color)]">·</span>
                     )}
                   </React.Fragment>
                 ))}
               </div>
             )}
 
-            <div className="w-10 sm:w-12 h-px bg-stone-300 mx-auto mt-4 sm:mt-6" />
+            <div className="w-10 sm:w-12 h-px bg-[var(--border-color)] mx-auto mt-4 sm:mt-6" />
           </header>
 
           {/* Bloques de texto del capítulo */}
-          <div className={`${fontSizeClasses} text-stone-800 space-y-5 sm:space-y-6 transition-all duration-200`}>
+          <div
+            className={`${fontSizeClasses} text-[var(--text-primary)] space-y-5 sm:space-y-6 transition-all duration-200`}
+          >
             {currentChapter.content.map((block, idx) => {
               if (block.type === 'meta') {
                 return (
                   <p
                     key={idx}
-                    className="text-center text-[11px] sm:text-xs font-sans uppercase tracking-[0.25em] text-stone-500 font-medium py-1.5 sm:py-2"
+                    className="text-center text-[11px] sm:text-xs font-sans uppercase tracking-[0.25em] text-[var(--text-muted)] font-medium py-1.5 sm:py-2"
                   >
                     {block.text}
                   </p>
@@ -277,7 +302,7 @@ export function BookReader({
                 return (
                   <h2
                     key={idx}
-                    className="text-center text-2xl sm:text-4xl font-serif text-stone-900 py-3 sm:py-4 font-normal"
+                    className="text-center text-2xl sm:text-4xl font-serif text-[var(--text-primary)] py-3 sm:py-4 font-normal"
                   >
                     {block.text}
                   </h2>
@@ -288,11 +313,11 @@ export function BookReader({
                 return (
                   <div
                     key={idx}
-                    className="my-6 sm:my-8 pl-4 sm:pl-5 border-l-2 border-stone-300 text-stone-700 italic font-serif text-base sm:text-lg"
+                    className="my-6 sm:my-8 pl-4 sm:pl-5 border-l-2 border-[var(--border-color)] text-[var(--text-secondary)] italic font-serif text-base sm:text-lg"
                   >
                     <p>«{block.text}»</p>
                     {block.author && (
-                      <span className="block text-xs font-sans uppercase tracking-widest text-stone-400 mt-2 not-italic">
+                      <span className="block text-xs font-sans uppercase tracking-widest text-[var(--text-muted)] mt-2 not-italic">
                         — {block.author}
                       </span>
                     )}
@@ -303,12 +328,61 @@ export function BookReader({
               if (block.type === 'divider') {
                 return (
                   <div key={idx} className="my-8 sm:my-10 text-center">
-                    <span className="text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.25em] sm:tracking-[0.3em] text-stone-400 font-semibold">
+                    <span className="text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.25em] sm:tracking-[0.3em] text-[var(--text-muted)] font-semibold">
                       {block.text}
                     </span>
-                    <div className="w-8 h-px bg-stone-300 mx-auto mt-2" />
+                    <div className="w-8 h-px bg-[var(--border-color)] mx-auto mt-2" />
                   </div>
                 )
+              }
+
+              // TAREA 4: Al final de fin-tomo-1, renderizar verticalmente los capítulos del Tomo II
+              if (currentChapter.id === 'fin-tomo-1' && block.type === 'paragraph') {
+                if (block.text.includes('·')) {
+                  const tomo2Chapters = block.text
+                    .split('·')
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+
+                  return (
+                    <div
+                      key={idx}
+                      className="my-8 sm:my-10 space-y-3 font-sans not-italic max-w-xl mx-auto"
+                    >
+                      {tomo2Chapters.map((capTitle, i) => (
+                        <div
+                          key={i}
+                          className="p-3.5 sm:p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-xs flex items-center gap-3 sm:gap-4 transition-all hover:border-[var(--text-muted)]"
+                        >
+                          <span className="font-serif text-xs uppercase font-semibold text-[var(--text-muted)] shrink-0 w-8 text-center px-1.5 py-0.5 rounded bg-[var(--bg-muted)]">
+                            {ROMAN_NUMERALS[i] || `${i + 1}`}
+                          </span>
+                          <span className="font-serif text-sm sm:text-base text-[var(--text-primary)] font-medium">
+                            {capTitle}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                }
+
+                // Si viene como párrafos individuales tras el divider en fin-tomo-1
+                if (idx >= 3) {
+                  const romanIdx = idx - 3
+                  return (
+                    <div
+                      key={idx}
+                      className="p-3.5 sm:p-4 rounded-xl border border-[var(--border-color)] bg-[var(--bg-surface)] shadow-xs flex items-center gap-3 sm:gap-4 transition-all hover:border-[var(--text-muted)] max-w-xl mx-auto font-sans not-italic"
+                    >
+                      <span className="font-serif text-xs uppercase font-semibold text-[var(--text-muted)] shrink-0 w-8 text-center px-1.5 py-0.5 rounded bg-[var(--bg-muted)]">
+                        {ROMAN_NUMERALS[romanIdx] || `${romanIdx + 1}`}
+                      </span>
+                      <span className="font-serif text-sm sm:text-base text-[var(--text-primary)] font-medium">
+                        {block.text}
+                      </span>
+                    </div>
+                  )
+                }
               }
 
               // Párrafo convencional con letra capitular responsiva
@@ -318,7 +392,7 @@ export function BookReader({
                   key={idx}
                   className={
                     isFirstParagraph
-                      ? 'first-letter:text-4xl sm:first-letter:text-6xl first-letter:font-serif first-letter:float-left first-letter:mr-2.5 sm:first-letter:mr-3 first-letter:leading-none first-letter:text-stone-900'
+                      ? 'first-letter:text-4xl sm:first-letter:text-6xl first-letter:font-serif first-letter:float-left first-letter:mr-2.5 sm:first-letter:mr-3 first-letter:leading-none first-letter:text-[var(--text-primary)]'
                       : ''
                   }
                 >
@@ -330,28 +404,28 @@ export function BookReader({
 
           {/* Bloqueo / Paywall editorial al final del Capítulo 1 */}
           {isLastFreeChapter && !hasFullAccess && (
-            <section className="mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-stone-300">
-              <div className="bg-[#FFFDF9] border border-stone-300 rounded-xl p-5 sm:p-10 shadow-[0_4px_25px_-5px_rgba(28,25,23,0.05)] text-center relative overflow-hidden">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-800 mb-3.5 sm:mb-4">
+            <section className="mt-12 sm:mt-16 pt-8 sm:pt-10 border-t border-[var(--border-color)]">
+              <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-xl p-5 sm:p-10 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.06)] text-center relative overflow-hidden transition-colors">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 mx-auto rounded-full bg-[var(--bg-muted)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-primary)] mb-3.5 sm:mb-4">
                   <Lock className="w-5 h-5 stroke-[1.75]" />
                 </div>
 
-                <p className="text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.25em] text-stone-500 font-semibold">
+                <p className="text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.25em] text-[var(--text-muted)] font-semibold">
                   Muestra de Cortesía
                 </p>
 
-                <h3 className="text-xl sm:text-3xl font-serif text-stone-900 mt-1.5 sm:mt-2 mb-2.5 sm:mb-3 font-normal">
+                <h3 className="text-xl sm:text-3xl font-serif text-[var(--text-primary)] mt-1.5 sm:mt-2 mb-2.5 sm:mb-3 font-normal">
                   Has llegado al final del Capítulo I
                 </h3>
 
                 {user ? (
-                  <div className="space-y-3 sm:space-y-4 max-w-md mx-auto text-xs sm:text-sm text-stone-600 font-sans">
+                  <div className="space-y-3 sm:space-y-4 max-w-md mx-auto text-xs sm:text-sm text-[var(--text-secondary)] font-sans">
                     <p className="leading-relaxed">
-                      Hola, <strong className="text-stone-900 font-medium">{user.email}</strong>. Tu cuenta
+                      Hola, <strong className="text-[var(--text-primary)] font-medium">{user.email}</strong>. Tu cuenta
                       aún no tiene habilitada la versión completa del Tomo I.
                     </p>
-                    <div className="p-3 sm:p-3.5 bg-[#FAF8F5] border border-stone-200 rounded-lg text-[11px] sm:text-xs text-stone-600 text-left leading-relaxed">
-                      <span className="font-semibold text-stone-800 block mb-0.5">
+                    <div className="p-3 sm:p-3.5 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-lg text-[11px] sm:text-xs text-[var(--text-secondary)] text-left leading-relaxed">
+                      <span className="font-semibold text-[var(--text-primary)] block mb-0.5">
                         ¿Cómo activar tu lectura?
                       </span>
                       Si ya adquiriste el libro o tienes una invitación, el autor puede darte de alta
@@ -360,22 +434,22 @@ export function BookReader({
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-3 sm:space-y-4 max-w-md mx-auto text-xs sm:text-sm text-stone-600 font-sans">
+                  <div className="space-y-3 sm:space-y-4 max-w-md mx-auto text-xs sm:text-sm text-[var(--text-secondary)] font-sans">
                     <p className="leading-relaxed">
                       El Tomo I de <em>Cuatro Palabras</em> continúa en el <strong>Capítulo II: Vida, Paz,
                       Situaciones, Amor</strong>, abarcando 10 capítulos y 37 páginas.
                     </p>
-                    <p className="text-stone-500 text-[11px] sm:text-xs">
+                    <p className="text-[var(--text-muted)] text-[11px] sm:text-xs">
                       Inicia sesión con tu correo electrónico para continuar tu lectura si ya dispones de
                       acceso concedido.
                     </p>
                     <div className="pt-2">
                       <Link
                         href="/login?redirectTo=/leer/tomo-1"
-                        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-stone-900 text-[#FAF8F5] px-6 py-3 rounded-lg text-xs sm:text-sm font-medium hover:bg-stone-800 transition duration-150 shadow-xs"
+                        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[var(--text-primary)] text-[var(--bg-primary)] px-6 py-3 rounded-lg text-xs sm:text-sm font-medium hover:opacity-90 transition duration-150 shadow-xs cursor-pointer"
                       >
                         <LogIn className="w-4 h-4" />
-                        <span>Ingresar con enlace mágico</span>
+                        <span>Iniciar sesión / Registrarse</span>
                       </Link>
                     </div>
                   </div>
@@ -385,18 +459,18 @@ export function BookReader({
           )}
 
           {/* Navegación inferior entre capítulos */}
-          <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs font-sans text-stone-500">
+          <footer className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-[var(--border-color)] flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs font-sans text-[var(--text-muted)]">
             <button
               type="button"
               onClick={handlePrevChapter}
               disabled={currentChapterIndex === 0}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded border border-stone-200 hover:border-stone-400 bg-[#FFFDF9] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded border border-[var(--border-color)] hover:border-[var(--text-muted)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:pointer-events-none transition cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Capítulo anterior</span>
             </button>
 
-            <span className="font-serif italic text-stone-400 text-center text-xs">
+            <span className="font-serif italic text-[var(--text-muted)] text-center text-xs">
               Páginas {currentChapter.pageStart} a {currentChapter.pageEnd} de {book.totalPages}
             </span>
 
@@ -404,7 +478,7 @@ export function BookReader({
               <button
                 type="button"
                 onClick={handleNextChapter}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded bg-stone-900 text-[#FAF8F5] hover:bg-stone-800 transition cursor-pointer shadow-xs font-medium"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded bg-[var(--text-primary)] text-[var(--bg-primary)] hover:opacity-90 transition cursor-pointer shadow-xs font-medium"
               >
                 <span>Siguiente capítulo</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -412,20 +486,20 @@ export function BookReader({
             ) : isLastFreeChapter && !hasFullAccess ? (
               <Link
                 href="/login?redirectTo=/leer/tomo-1"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded bg-stone-900 text-[#FAF8F5] hover:bg-stone-800 transition font-medium"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded bg-[var(--text-primary)] text-[var(--bg-primary)] hover:opacity-90 transition font-medium"
               >
                 <Lock className="w-3.5 h-3.5" />
-                <span>Desbloquear libro</span>
+                <span>Iniciar sesión / Registrarse</span>
               </Link>
             ) : (
-              <span className="text-stone-400 italic text-center w-full sm:w-auto">Fin del Tomo I</span>
+              <span className="text-[var(--text-muted)] italic text-center w-full sm:w-auto">Fin del Tomo I</span>
             )}
           </footer>
         </article>
       </main>
 
       {/* Barra de pie ultra-minimalista */}
-      <footer className="py-4 text-center text-[11px] text-stone-400 font-serif border-t border-stone-200/50">
+      <footer className="py-4 text-center text-[11px] text-[var(--text-muted)] font-serif border-t border-[var(--border-color)]/60">
         Cuatro Palabras · Tomo I
       </footer>
 
@@ -434,98 +508,160 @@ export function BookReader({
         <div className="fixed inset-0 z-50 flex">
           {/* Fondo traslúcido para cerrar con toque */}
           <div
-            className="fixed inset-0 bg-stone-950/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
             onClick={() => setIsTocOpen(false)}
           />
 
           {/* Panel lateral adaptable: cubre 88% en celular y max-w-md en desktop */}
-          <aside className="relative ml-auto w-[88vw] sm:w-full sm:max-w-md bg-[#FFFDF9] border-l border-stone-200 h-full p-5 sm:p-8 flex flex-col shadow-2xl z-10 overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-stone-200">
+          <aside className="relative ml-auto w-[88vw] sm:w-full sm:max-w-md bg-[var(--bg-surface)] border-l border-[var(--border-color)] h-full p-5 sm:p-8 flex flex-col shadow-2xl z-10 overflow-y-auto transition-colors">
+            <div className="flex items-center justify-between pb-4 sm:pb-6 border-b border-[var(--border-color)]">
               <div>
-                <p className="text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.25em] text-stone-500 font-semibold">
+                <p className="text-[10px] sm:text-[11px] font-sans uppercase tracking-[0.25em] text-[var(--text-muted)] font-semibold">
                   Índice General
                 </p>
-                <h2 className="text-xl sm:text-2xl font-serif text-stone-900 font-normal mt-0.5 sm:mt-1">
+                <h2 className="text-xl sm:text-2xl font-serif text-[var(--text-primary)] font-normal mt-0.5 sm:mt-1">
                   {book.title}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setIsTocOpen(false)}
-                className="p-2 text-stone-400 hover:text-stone-800 rounded-lg hover:bg-stone-100 transition cursor-pointer"
+                className="p-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-muted)] transition cursor-pointer"
                 title="Cerrar índice"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Lista de capítulos en el índice */}
-            <div className="py-4 sm:py-6 flex-1 space-y-1">
-              {book.chapters.map((chapter) => {
-                const isAvailable = availableChapters.some((c) => c.id === chapter.id)
-                const isCurrent = currentChapter.id === chapter.id
-
-                return (
-                  <div key={chapter.id}>
-                    {isAvailable ? (
-                      <button
-                        type="button"
-                        onClick={() => handleSelectChapter(chapter.id)}
-                        className={`w-full text-left px-3 py-2.5 sm:py-3 rounded-lg flex items-center justify-between group transition cursor-pointer min-h-[48px] ${
-                          isCurrent
-                            ? 'bg-stone-200/70 text-stone-950 font-medium'
-                            : 'hover:bg-stone-100 text-stone-700'
-                        }`}
-                      >
-                        <div className="truncate pr-3">
-                          {chapter.number && (
-                            <span className="block text-[10px] font-sans uppercase tracking-widest text-stone-400 mb-0.5">
-                              {chapter.number}
-                            </span>
-                          )}
-                          <span className="font-serif text-sm sm:text-base group-hover:text-stone-900">
-                            {chapter.title}
-                          </span>
-                        </div>
-                        <span className="text-[11px] sm:text-xs font-sans text-stone-400 shrink-0">
-                          p. {chapter.pageStart}
-                        </span>
-                      </button>
-                    ) : (
-                      <div className="w-full text-left px-3 py-2.5 sm:py-3 rounded-lg flex items-center justify-between opacity-50 bg-stone-50/50 cursor-not-allowed min-h-[48px]">
-                        <div className="truncate pr-3">
-                          {chapter.number && (
-                            <span className="block text-[10px] font-sans uppercase tracking-widest text-stone-400 mb-0.5">
-                              {chapter.number}
-                            </span>
-                          )}
-                          <span className="font-serif text-sm text-stone-500">
-                            {chapter.title}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1 text-[11px] sm:text-xs font-sans text-stone-400 shrink-0">
-                          <Lock className="w-3.5 h-3.5 text-stone-400" />
-                          <span>p. {chapter.pageStart}</span>
-                        </div>
-                      </div>
-                    )}
+            {/* TAREA 3: Lista de capítulos en el índice agrupada por Tomos (Acordeón) */}
+            <div className="py-4 sm:py-6 flex-1 space-y-4">
+              {/* Acordeón 1: Tomo I */}
+              <div className="border border-[var(--border-color)] rounded-xl overflow-hidden bg-[var(--bg-primary)]/50">
+                <button
+                  type="button"
+                  onClick={() => setIsTomo1Open(!isTomo1Open)}
+                  className="w-full flex items-center justify-between p-3.5 bg-[var(--bg-surface)] hover:bg-[var(--bg-muted)]/60 transition cursor-pointer text-left"
+                >
+                  <div className="min-w-0 pr-2">
+                    <span className="block text-[10px] font-sans uppercase tracking-[0.2em] text-[var(--text-muted)] font-semibold">
+                      Tomo I
+                    </span>
+                    <span className="font-serif text-sm font-medium text-[var(--text-primary)] truncate block">
+                      Comprender, Aceptar, Crecer, Avanzar
+                    </span>
                   </div>
-                )
-              })}
+                  {isTomo1Open ? (
+                    <ChevronDown className="w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform" />
+                  )}
+                </button>
+
+                {isTomo1Open && (
+                  <div className="p-2 space-y-1 border-t border-[var(--border-color)] bg-[var(--bg-surface)]">
+                    {book.chapters.map((chapter) => {
+                      const isAvailable = availableChapters.some((c) => c.id === chapter.id)
+                      const isCurrent = currentChapter.id === chapter.id
+
+                      return (
+                        <div key={chapter.id}>
+                          {isAvailable ? (
+                            <button
+                              type="button"
+                              onClick={() => handleSelectChapter(chapter.id)}
+                              className={`w-full text-left px-3 py-2.5 sm:py-3 rounded-lg flex items-center justify-between group transition cursor-pointer min-h-[46px] ${
+                                isCurrent
+                                  ? 'bg-[var(--bg-muted)] text-[var(--text-primary)] font-medium border border-[var(--border-color)]'
+                                  : 'hover:bg-[var(--bg-muted)]/60 text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                              }`}
+                            >
+                              <div className="truncate pr-3">
+                                {chapter.number && (
+                                  <span className="block text-[10px] font-sans uppercase tracking-widest text-[var(--text-muted)] mb-0.5">
+                                    {chapter.number}
+                                  </span>
+                                )}
+                                <span className="font-serif text-sm group-hover:text-[var(--text-primary)]">
+                                  {chapter.title}
+                                </span>
+                              </div>
+                              <span className="text-[11px] sm:text-xs font-sans text-[var(--text-muted)] shrink-0">
+                                p. {chapter.pageStart}
+                              </span>
+                            </button>
+                          ) : (
+                            <div className="w-full text-left px-3 py-2.5 sm:py-3 rounded-lg flex items-center justify-between opacity-50 bg-[var(--bg-primary)]/40 cursor-not-allowed min-h-[46px] border border-transparent">
+                              <div className="truncate pr-3">
+                                {chapter.number && (
+                                  <span className="block text-[10px] font-sans uppercase tracking-widest text-[var(--text-muted)] mb-0.5">
+                                    {chapter.number}
+                                  </span>
+                                )}
+                                <span className="font-serif text-sm text-[var(--text-muted)]">
+                                  {chapter.title}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-[11px] sm:text-xs font-sans text-[var(--text-muted)] shrink-0">
+                                <Lock className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                                <span>p. {chapter.pageStart}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Acordeón 2: Tomo II */}
+              <div className="border border-[var(--border-color)] rounded-xl overflow-hidden bg-[var(--bg-primary)]/50">
+                <button
+                  type="button"
+                  onClick={() => setIsTomo2Open(!isTomo2Open)}
+                  className="w-full flex items-center justify-between p-3.5 bg-[var(--bg-surface)] hover:bg-[var(--bg-muted)]/60 transition cursor-pointer text-left"
+                >
+                  <div className="min-w-0 pr-2">
+                    <span className="block text-[10px] font-sans uppercase tracking-[0.2em] text-[var(--text-muted)] font-semibold">
+                      Tomo II
+                    </span>
+                    <span className="font-serif text-sm font-medium text-[var(--text-primary)] truncate block">
+                      Próximamente
+                    </span>
+                  </div>
+                  {isTomo2Open ? (
+                    <ChevronDown className="w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 text-[var(--text-muted)] shrink-0 transition-transform" />
+                  )}
+                </button>
+
+                {isTomo2Open && (
+                  <div className="p-4 border-t border-[var(--border-color)] bg-[var(--bg-surface)] text-center space-y-2.5">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] sm:text-[11px] font-sans uppercase tracking-wider font-semibold rounded-full bg-[var(--bg-muted)] text-[var(--text-primary)] border border-[var(--border-color)]">
+                      <Sparkles className="w-3 h-3 text-amber-500" />
+                      Próximamente · En desarrollo
+                    </span>
+                    <p className="font-serif italic text-xs text-[var(--text-secondary)] leading-relaxed pt-1">
+                      «Nuevas combinaciones de cuatro palabras en proceso de escritura.»
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Pie del índice */}
-            <div className="pt-4 sm:pt-6 border-t border-stone-200 text-xs text-stone-500 font-sans space-y-3">
+            <div className="pt-4 sm:pt-6 border-t border-[var(--border-color)] text-xs text-[var(--text-muted)] font-sans space-y-3">
               {!hasFullAccess && (
-                <div className="p-3 bg-stone-100 rounded-lg text-[11px] sm:text-xs text-stone-600 leading-relaxed">
-                  <span className="font-semibold text-stone-800 block mb-0.5">Acceso Parcial</span>
+                <div className="p-3 bg-[var(--bg-muted)] rounded-lg text-[11px] sm:text-xs text-[var(--text-secondary)] leading-relaxed border border-[var(--border-color)]">
+                  <span className="font-semibold text-[var(--text-primary)] block mb-0.5">Acceso Parcial</span>
                   Los capítulos marcados con candado se desbloquean al autorizar tu correo en la plataforma.
                 </div>
               )}
               <div className="text-center pt-1">
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-1 text-stone-500 hover:text-stone-900 transition text-xs"
+                  className="inline-flex items-center gap-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition text-xs"
                   onClick={() => setIsTocOpen(false)}
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />

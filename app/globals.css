@@ -1,19 +1,49 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FAF8F5;
-  --foreground: #1c1917;
+  --bg-primary: #F2ECE1;
+  --bg-surface: #F7F3EB;
+  --bg-muted: #E6DFD3;
+  --text-primary: #262320;
+  --text-secondary: #5C564F;
+  --text-muted: #857E75;
+  --border-color: #D8D0C2;
+}
+
+.dark {
+  --bg-primary: #262628;
+  --bg-surface: #303033;
+  --bg-muted: #3B3B3F;
+  --text-primary: #E6E2DA;
+  --text-secondary: #B5B0A6;
+  --text-muted: #8A857D;
+  --border-color: #424246;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-theme-bg: var(--bg-primary);
+  --color-theme-surface: var(--bg-surface);
+  --color-theme-muted: var(--bg-muted);
+  --color-theme-text: var(--text-primary);
+  --color-theme-secondary: var(--text-secondary);
+  --color-theme-muted-text: var(--text-muted);
+  --color-theme-border: var(--border-color);
+
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-muted: var(--bg-muted);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-color: var(--border-color);
+
   --font-serif: Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
 }
