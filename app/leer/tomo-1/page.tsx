@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { connection } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
-import { checkUserFullAccess } from '@/utils/supabase/access'
+import { checkUserFullAccess, checkIsAdmin } from '@/utils/supabase/access'
 import { TOMO_1, Chapter } from '@/data/book-tomo-1'
 import { BookReader } from '@/components/BookReader'
 import { redirect } from 'next/navigation'
@@ -19,8 +19,9 @@ async function AsyncReader() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // 1. Verificamos si el usuario actual cuenta con permiso para leer el libro completo
+  // 1. Verificamos si el usuario actual cuenta con permiso para leer el libro completo y si es admin
   const hasFullAccess = await checkUserFullAccess(user?.email)
+  const isAdmin = checkIsAdmin(user?.email)
 
   // 2. OBTENCIÓN SEGURA DEL CONTENIDO:
   // - Si el lector tiene acceso confirmado, traemos los textos protegidos directamente
@@ -71,6 +72,7 @@ async function AsyncReader() {
       availableChapters={availableChapters}
       user={user?.email ? { email: user.email } : null}
       hasFullAccess={hasFullAccess}
+      isAdmin={isAdmin}
       onSignOut={handleSignOut}
     />
   )

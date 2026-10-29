@@ -12,6 +12,7 @@ import {
   LogOut,
   LogIn,
   Sparkles,
+  Shield,
   ChevronDown,
   ChevronRight,
 } from 'lucide-react'
@@ -23,6 +24,7 @@ interface BookReaderProps {
   availableChapters: Chapter[]
   user: { email: string } | null
   hasFullAccess: boolean
+  isAdmin?: boolean
   onSignOut?: () => Promise<void>
 }
 
@@ -47,6 +49,7 @@ export function BookReader({
   availableChapters,
   user,
   hasFullAccess,
+  isAdmin = false,
   onSignOut,
 }: BookReaderProps) {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0)
@@ -215,6 +218,18 @@ export function BookReader({
 
             {/* Botón de alternancia de tema (Claro Beige / Oscuro Grafito) */}
             <ThemeToggle />
+
+            {/* Acceso rápido a Panel Admin si el usuario es administrador */}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-medium px-2 py-1 sm:px-2.5 sm:py-1 rounded-md bg-[var(--bg-muted)] hover:bg-[var(--bg-surface)] text-[var(--text-primary)] border border-[var(--border-color)] hover:border-[var(--text-muted)] transition shadow-xs"
+                title="Ir al Panel de Administración"
+              >
+                <Shield className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span className="hidden xs:inline">Admin</span>
+              </Link>
+            )}
 
             {/* Estado del usuario */}
             {user ? (

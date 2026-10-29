@@ -1,21 +1,42 @@
 import { createClient } from '@/utils/supabase/server'
 
 /**
+ * Verifica si un correo electrónico pertenece a la lista de administradores autorizados.
+ * Lee la variable de entorno ADMIN_EMAILS (separados por coma).
+ */
+export function checkIsAdmin(email?: string | null): boolean {
+  if (!email) return false
+
+  const cleanEmail = email.trim().toLowerCase()
+  const adminEmails = (process.env.ADMIN_EMAILS || process.env.ALLOWED_READERS_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+
+  return adminEmails.includes(cleanEmail)
+}
+
+/**
  * Verifica si un usuario (por su email) tiene acceso a la versión completa del libro.
  * 
  * Estrategia de verificación dual:
- * 1. Variables de entorno (ALLOWED_READERS o ADMIN_EMAILS): Permite acceso inmediato a administradores
+ * 1. Variables de entorno (ADMIN_EMAILS o ALLOWED_READERS_EMAILS): Permite acceso inmediato a administradores
  *    o lista de emails sin necesidad de consultar la base de datos.
  * 2. Tabla 'allowed_readers' en Supabase: Permite agregar o revocar acceso a lectores
- *    directamente desde el Table Editor del Dashboard de Supabase.
+ *    directamente desde la base de datos o desde el panel de administración.
  */
 export async function checkUserFullAccess(email?: string | null): Promise<boolean> {
   if (!email) return false
 
   const cleanEmail = email.trim().toLowerCase()
 
-  // 1. Verificación rápida por variable de entorno (si existe)
-  const envAllowed = (process.env.ALLOWED_READERS_EMAILS || process.env.ADMIN_EMAILS || '')
+  // 1. Verificación rápida: Si es administrador, tiene acceso irrestricto
+  if (checkIsAdmin(cleanEmail)) {
+    return true
+  }
+
+  // Verificación por variable de entorno de lectores adicionales
+  const envAllowed = (process.env.ALLOWED_READERS_EMAILS || '')
     .split(',')
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean)
@@ -24,7 +45,7 @@ export async function checkUserFullAccess(email?: string | null): Promise<boolea
     return true
   }
 
-  // 2. Verificación en la base de datos Supabase
+  // 2. Verificación en la tabla allowed_readers de Supabase
   try {
     const supabase = await createClient()
 
@@ -35,7 +56,6 @@ export async function checkUserFullAccess(email?: string | null): Promise<boolea
       .maybeSingle()
 
     if (error) {
-      // Si la tabla aún no fue creada en Supabase, no rompemos la app
       console.warn('Nota: Consulta a allowed_readers omitida o no encontrada:', error.message)
       return false
     }

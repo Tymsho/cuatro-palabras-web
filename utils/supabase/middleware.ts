@@ -35,8 +35,15 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // La lectura de muestra (/leer/tomo-1) es libre hasta el Capítulo 1.
-  // Otras rutas bajo /leer que requieran autenticación forzada se pueden redirigir:
+  // 1. Protección del Panel de Administración para visitantes no autenticados
+  if (!user && pathname.startsWith('/admin')) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/login'
+    redirectUrl.searchParams.set('redirectTo', pathname)
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  // 2. Otras rutas que requieran autenticación forzada
   if (!user && pathname.startsWith('/leer/privado')) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/login'
@@ -44,10 +51,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Si el usuario ya está autenticado e ingresa a /login, lo dirigimos a la lectura
+  // 3. Si el usuario ya está autenticado e ingresa a /login, lo dirigimos a su destino o a la lectura
   if (user && pathname === '/login') {
+    const target = request.nextUrl.searchParams.get('redirectTo') || '/leer/tomo-1'
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/leer/tomo-1'
+    redirectUrl.pathname = target.startsWith('/') ? target : '/leer/tomo-1'
     redirectUrl.searchParams.delete('redirectTo')
     return NextResponse.redirect(redirectUrl)
   }
